@@ -2,7 +2,7 @@
 project: kalker
 
 # Target name (should be unique within the project)
-target: arithmetic
+target: parse
 
 # Base image to run the binary in.
 # image: ghcr.io/prateekvishnu/kalker:latest
@@ -12,7 +12,7 @@ cmds:
 
     # Command used to start the target, "@@" is the input file
     # (when "@@" is omitted Mayhem defaults to stdin inputs)
-    - cmd: /arithmetic
+    - cmd: /parse
 
  
 
