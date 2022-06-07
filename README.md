@@ -4,16 +4,19 @@ Kalker (or "kalk") is a calculator program/website that supports user-defined va
 
 [![Crates.io](https://img.shields.io/crates/v/kalker)](https://crates.io/crates/kalker) ![npm](https://img.shields.io/npm/v/@paddim8/kalk) [![GitHub](https://img.shields.io/github/license/PaddiM8/kalk)](https://github.com/PaddiM8/kalker/blob/master/LICENSE) [![Docs.rs](https://docs.rs/kalk/badge.svg)](https://docs.rs/kalk/latest/kalk/) ![Build status](https://img.shields.io/github/workflow/status/PaddiM8/kalker/Rust?event=push&label=build%20%26%20test)
 
-[Kanban](https://kolan.strct.net/Board/4RAdMjLDz) | [Website - Try it out here!](https://kalker.xyz) | [Donate](#donation)
+[Kanban](https://kolan.strct.net/Board/4RAdMjLDz) | [Website - Try it out here!](https://kalker.xyz)
 
 <img src="preview.png" width="750">
 
 # Features
 
 * Operators: `+`, `-`, `*`, `/`, `!`
-* Groups: `()`, `⌈ceil⌉`, `⌊floor⌋`, `[iverson]`
-* [Pre-defined functions and constants](https://github.com/PaddiM8/kalker/blob/master/kalk/src/prelude/mod.rs)
+* Groups: `()`, `[]`, `⌈ceil⌉`, `⌊floor⌋`
+* [Vectors](https://kalker.xyz/#vectors): (x, y, z, ...)
+* [Matrices](https://kalker.xyz/#matrices): [x, y, z; a, b, c; ...]
+* [Pre-defined functions and constants](https://kalker.xyz/#functions)
 * User-defined functions and variables. `f(x, y) = xy`, `x = 5`
+* Root finding using Newton's method (eg. x^2 = 64). Note: estimation and limited to one root
 * Derivative of functions (derivatives of noisy functions or of higher order can be a bit inaccurate). `f'(2)`, `sin'(-pi)`
 * Integration. `∫(0, pi, sin(x) dx)` or `∫(0, π, sin(x) dx)`, maybe sometimes be slightly off
 * Understands fairly ambiguous syntax. Eg. `2sin50 + 2xy`
@@ -39,6 +42,10 @@ Kalker (or "kalk") is a calculator program/website that supports user-defined va
 Kalker is available through [`nixpkgs`](https://search.nixos.org/packages?channel=unstable&show=kalker&from=0&size=50&sort=relevance&type=packages&query=kalker).
 The most up to date version is also available as a [`flake`](https://search.nixos.org/flakes?channel=unstable&show=kalker&from=0&size=50&sort=relevance&type=packages&query=kalker).
 
+### NetBSD
+Kalker is available from the [`official repositories`](https://pkgsrc.se/math/kalker),
+`pkgin install kalker`
+
 ## Binaries
 
 Pre-compiled binaries for Linux, Windows, and macOS (64-bit) are available in the [releases page](https://github.com/PaddiM8/kalker/releases).
@@ -59,7 +66,7 @@ Run `cargo install kalker`
 
 # Donation
 
-Kalker is completely free and open source. If you wish to support further development of Kalker, you can do so here: [PayPal](https://paypal.me/oliverwaldemar)
+Kalker is completely free and open source. If you wish to support further development of Kalker and contribute towards it one day getting published on the Google Play Store, you can do so here: [PayPal](https://paypal.me/oliverwaldemar)
 
 # Libraries
 
@@ -71,23 +78,23 @@ There are currently three different libraries related to kalker.
 
 # Syntax
 
-A more complete reference can be found on [the website](https://kalker.xyz)
+A more complete reference can be found on [the website](https://kalker.xyz).
 
 ## Functions
 
 **Defining:** name(parameter1, parameter2, ...) = expression\
-**Example:** `f(x) = 2x+3`
+**Example:** $ f(x) = 2x+3 $
 
 **Using:** name(argument1, argument2)\
-**Example:** `f(2)`
+**Example:** $ f(2) $
 
 ## Variables
 
 **Defining:** name = expression\
-**Example:** `x = 3`
+**Example:** $ x = 3 $
 
 **Using:** name\
-**Example:** `x`
+**Example:** $ x $
 
 # Contributing
 

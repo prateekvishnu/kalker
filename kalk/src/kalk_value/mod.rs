@@ -247,15 +247,27 @@ impl KalkValue {
     }
 
     pub fn to_string_big(&self) -> String {
+        fn trim_num(num_str: String) -> String {
+            num_str
+                .trim_end_matches('0')
+                .trim_end_matches('.')
+                .to_string()
+        }
+
         if let KalkValue::Number(real, imaginary, _) = self {
             if !self.has_imaginary() {
-                return real.to_string();
+                return trim_num(real.to_string());
             }
 
             let sign = if imaginary < &0f64 { "-" } else { "+" };
-            format!("{} {} {}", real, sign, imaginary)
+            format!(
+                "{} {} {}i",
+                spaced(&trim_num(real.to_string())),
+                sign,
+                spaced(&trim_num(imaginary.to_string()))
+            )
         } else {
-            self.to_string()
+            trim_num(self.to_string())
         }
     }
 
@@ -295,12 +307,15 @@ impl KalkValue {
         let sci_notation_real = self.to_scientific_notation(ComplexNumberType::Real);
         let mut new_real = real.clone();
         let mut new_imaginary = imaginary.clone();
+        let mut has_scientific_notation = false;
         let result_str = if (-6..8).contains(&sci_notation_real.exponent) || real == &0f64 {
             self.to_string_real(radix)
         } else if sci_notation_real.exponent <= -14 {
             new_real = float!(0);
             String::from("0")
         } else if radix == 10 {
+            has_scientific_notation = true;
+
             sci_notation_real.to_string().trim().to_string()
         } else {
             return String::new();
@@ -316,6 +331,8 @@ impl KalkValue {
             new_imaginary = float!(0);
             String::from("0")
         } else if radix == 10 {
+            has_scientific_notation = true;
+
             sci_notation_imaginary.to_string().trim().to_string()
         } else {
             return String::new();
@@ -351,6 +368,8 @@ impl KalkValue {
             if estimate != output && radix == 10 {
                 output.push_str(&format!(" ≈ {}", estimate));
             }
+        } else if has_scientific_notation {
+            output.insert_str(0, &format!("{} ≈ ", self));
         }
 
         output
@@ -1092,14 +1111,16 @@ impl KalkValue {
 
 pub fn format_number(input: f64) -> String {
     let rounded = format!("{:.1$}", input, 10);
-    if rounded.contains('.') {
+    let result = if rounded.contains('.') {
         rounded
             .trim_end_matches('0')
             .trim_end_matches('.')
             .to_string()
     } else {
         rounded
-    }
+    };
+
+    spaced(&result)
 }
 
 fn calculate_vector(
@@ -1215,6 +1236,50 @@ fn calculate_matrix(
     }
 }
 
+fn spaced(number_str: &str) -> String {
+    let dot_pos = number_str.find('.');
+    let integer_boundary = if let Some(dot_pos) = dot_pos {
+        dot_pos
+    } else {
+        number_str.len()
+    };
+
+    if integer_boundary < 5 {
+        return number_str.into();
+    }
+
+    let bytes = number_str.as_bytes();
+    let mut at_decimals = dot_pos.is_some();
+    let mut i = number_str.len() - 1;
+    let mut c = 0;
+    let mut new_str = String::new();
+    while i > 0 {
+        if bytes[i] as char == '.' {
+            new_str.push('.');
+            at_decimals = false;
+            i -= 1;
+            c = 0;
+            continue;
+        }
+
+        if !at_decimals && c == 3 {
+            new_str.push(' ');
+            c = 0;
+        }
+
+        new_str.push(bytes[i] as char);
+        c += 1;
+        i -= 1;
+    }
+
+    if c == 3 {
+        new_str.push(' ');
+    }
+    new_str.push(bytes[0] as char);
+
+    new_str.chars().rev().collect::<String>()
+}
+
 fn calculate_unit(
     context: &mut crate::interpreter::Context,
     left: &KalkValue,
@@ -1312,8 +1377,28 @@ impl From<i32> for KalkValue {
 
 #[cfg(test)]
 mod tests {
-    use crate::kalk_value::KalkValue;
+    use crate::kalk_value::{spaced, KalkValue};
     use crate::test_helpers::cmp;
+
+    #[test]
+    fn test_spaced() {
+        assert_eq!(spaced("1"), String::from("1"));
+        assert_eq!(spaced("10"), String::from("10"));
+        assert_eq!(spaced("100"), String::from("100"));
+        assert_eq!(spaced("1000"), String::from("1000"));
+        assert_eq!(spaced("10000"), String::from("10 000"));
+        assert_eq!(spaced("100000"), String::from("100 000"));
+        assert_eq!(spaced("1000000"), String::from("1 000 000"));
+        assert_eq!(spaced("10000000"), String::from("10 000 000"));
+        assert_eq!(spaced("1.12345"), String::from("1.12345"));
+        assert_eq!(spaced("10.12345"), String::from("10.12345"));
+        assert_eq!(spaced("100.12345"), String::from("100.12345"));
+        assert_eq!(spaced("1000.12345"), String::from("1000.12345"));
+        assert_eq!(spaced("10000.12345"), String::from("10 000.12345"));
+        assert_eq!(spaced("100000.12345"), String::from("100 000.12345"));
+        assert_eq!(spaced("1000000.12345"), String::from("1 000 000.12345"));
+        assert_eq!(spaced("10000000.12345"), String::from("10 000 000.12345"));
+    }
 
     #[test]
     fn test_add_complex() {
